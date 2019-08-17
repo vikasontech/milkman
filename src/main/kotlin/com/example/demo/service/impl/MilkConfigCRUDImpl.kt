@@ -7,7 +7,6 @@ import org.reactivestreams.Publisher
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
-import java.util.*
 
 @Service
 class MilkConfigCRUDImpl(val repo: UserConfigRepo) : MilkConfigCRUD {
@@ -15,7 +14,7 @@ class MilkConfigCRUDImpl(val repo: UserConfigRepo) : MilkConfigCRUD {
   override fun saveUserConfig(userDetails: Publisher<UserConfig>): Mono<UserConfig> {
     return userDetails
         .toMono()
-        .map { e -> e.copy(id = Utility.getID()) }
+        .map { e -> e.copy(id = Utils.getID()) }
         .flatMap { e -> saveUserDetails(e) }
         .log()
   }
@@ -35,8 +34,3 @@ class MilkConfigCRUDImpl(val repo: UserConfigRepo) : MilkConfigCRUD {
   }
 }
 
-object Utility {
-  fun getID(): String {
-    return UUID.randomUUID().toString()
-  }
-}

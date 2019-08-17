@@ -1,0 +1,43 @@
+{
+   "id":"id",
+   "userId":"user-id",
+   "vendorName":"vender name",
+   "pricePerLtr":37,
+   "milkConfigs":[
+      {
+         "userId":"user-id",
+         "day":0,
+         "quantity":0
+      },
+      {
+         "userId":"user-id",
+         "day":1,
+         "quantity":0
+      },
+      {
+         "userId":"user-id",
+         "day":2,
+         "quantity":2
+      },
+      {
+         "userId":"user-id",
+         "day":3,
+         "quantity":0
+      },
+      {
+         "userId":"user-id",
+         "day":4,
+         "quantity":2
+      },
+      {
+         "userId":"user-id",
+         "day":5,
+         "quantity":0
+      },
+      {
+         "userId":"user-id",
+         "day":6,
+         "quantity":3
+      }
+   ]
+}
