@@ -21,7 +21,7 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     val extraMilk = 3L
     val invoiceDetails = userConfig.toMono().zipWith(getMilkConfigDetails(userConfig)) { a, b ->
       calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = 2019,
-          month = 7, milkNotTaken = emptyList())
+          month = 7, milkNotTaken = emptyList(), day = 0)
     }
 
     // per month
@@ -37,15 +37,22 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     }
   }
 
-  private fun getTotalCost(invoiceDetail: Flux<InvoiceDetail>): Mono<BigDecimal> {
+  fun getTotalCost(invoiceDetail: Flux<InvoiceDetail>): Mono<BigDecimal> {
     return invoiceDetail.map { e -> e.totalCostPerDay }.reduce { a, b -> a.add(b) }
   }
 
   fun calculateInvoiceDetails(mapConfig: Map<Int, Long>, milkNotTaken: List<Int>,
-                              price: BigDecimal, year: Int, month: Int): Flux<InvoiceDetail> {
+                              price: BigDecimal, year: Int, month: Int,
+                              day:Int):
+      Flux<InvoiceDetail> {
 
+    require(month in 1..12) {"Invalid Month $month!"}
+    require(year in 2000 .. 2999) {"Invalid Year: $year!"}
     val localDate = LocalDate.of(year, month, 1)
-    val totalDays = localDate.lengthOfMonth()
+    require(day in 0 .. localDate.lengthOfMonth()) {"Invalid Day $day!"}
+
+    val totalDays = if(day == 0 ) localDate.lengthOfMonth() else day
+
     var tempStartDay = localDate.dayOfWeek.value
 
     var totalPrice = BigDecimal.ZERO
