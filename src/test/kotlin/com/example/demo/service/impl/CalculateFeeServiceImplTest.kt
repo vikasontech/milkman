@@ -8,9 +8,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.junit.MockitoJUnitRunner
+import org.springframework.util.Assert
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.io.File
+import java.math.BigDecimal
 
 @RunWith(MockitoJUnitRunner::class)
 class CalculateFeeServiceImplTest {
@@ -20,10 +22,12 @@ class CalculateFeeServiceImplTest {
 
   @Test
   fun calculateMonthlyPriceTest() {
-    val calculateMonthlyPriceMono= calculateFeeService.calculateMonthlyPrice(Mono.justOrEmpty(getMockUserConfigData()))
-    StepVerifier.create(calculateMonthlyPriceMono)
-        .expectNextMatches { e -> e.descriptions.isNotEmpty() }
-        .verifyComplete()
+    val calculateMonthlyPriceMono = calculateFeeService.calculateMonthlyPrice(Mono.justOrEmpty(getMockUserConfigData()))
+    calculateMonthlyPriceMono
+        .subscribe { e ->
+          Assert.isTrue(e.totalAmount == BigDecimal.valueOf(1221),
+              "Total amount should be 1221")
+        }
   }
 
   @Test
@@ -54,5 +58,27 @@ class CalculateFeeServiceImplTest {
 //    return ObjectMapper().writeValueAsString(userConfig)
 //
 //  }
+
+  @Test
+  fun test_calculateInvoiceDetailsV2() {
+    val milkNotTaken = listOf(1, 2, 3, 4)
+    val extraMilk = 3
+
+    val mapConfig = mutableMapOf<Int, Long>()
+    mapConfig[0] = 0
+    mapConfig[1] = 0
+    mapConfig[2] = 2
+    mapConfig[3] = 0
+    mapConfig[4] = 2
+    mapConfig[5] = 0
+    mapConfig[6] = 3
+
+    val calculateInvoiceDetailsV2 = calculateFeeService.calculateInvoiceDetails(mapConfig = mapConfig, month = 7, year = 2019, price = BigDecimal.valueOf(37), milkNotTaken = listOf(1, 2, 9).toList())
+    calculateInvoiceDetailsV2.map { e -> e.totalCostPerDay }
+        .reduce (BigDecimal::add)
+        .subscribe {
+            Assert.isTrue(it == BigDecimal(962),"Milk calculation error")
+        }
+  }
 }
 

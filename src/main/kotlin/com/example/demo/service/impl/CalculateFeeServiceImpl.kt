@@ -18,9 +18,11 @@ import java.util.stream.Collectors
 class CalculateFeeServiceImpl : CalculateFeeService {
 
   override fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>): Mono<Invoice> {
-
+    val extraMilk = 3L
     val invoiceDetails = userConfig.toMono().zipWith(getMilkConfigDetails(userConfig)) { a, b ->
-      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = 2019, month = 7) }
+      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = 2019,
+          month = 7, milkNotTaken = emptyList())
+    }
 
     // per month
     val totalCost = invoiceDetails.flatMap { e -> getTotalCost(e) }
@@ -28,14 +30,10 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     val invoiceDetailsFlux = invoiceDetails.flatMap { e -> e.collect(Collectors.toList()) }
 
     return Mono.zip(userConfig.toMono(), totalCost, invoiceDetailsFlux).map { tuple ->
-      Invoice(name = tuple.t1.userId,
-          pricePerLtr = tuple.t1.pricePerLtr,
-          year = 2019,
-          month = 7,
-          billingDate = LocalDate.now(),
-          descriptions = tuple.t3,
-          vendorName = tuple.t1.vendorName,
-          totalAmount = tuple.t2)
+      Invoice(name = tuple.t1.userId, pricePerLtr = tuple.t1.pricePerLtr,
+          year = 2019, month = 7, billingDate = LocalDate.now(), descriptions = tuple.t3,
+          vendorName = tuple.t1.vendorName, extraMilkPerLtr = extraMilk.toInt(),
+          totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(extraMilk)))))
     }
   }
 
@@ -43,8 +41,8 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     return invoiceDetail.map { e -> e.totalCostPerDay }.reduce { a, b -> a.add(b) }
   }
 
-
-  private fun calculateInvoiceDetails(mapConfig: Map<Int, Long>, price: BigDecimal, year: Int, month: Int): Flux<InvoiceDetail> {
+  fun calculateInvoiceDetails(mapConfig: Map<Int, Long>, milkNotTaken: List<Int>,
+                              price: BigDecimal, year: Int, month: Int): Flux<InvoiceDetail> {
 
     val localDate = LocalDate.of(year, month, 1)
     val totalDays = localDate.lengthOfMonth()
@@ -52,15 +50,18 @@ class CalculateFeeServiceImpl : CalculateFeeService {
 
     var totalPrice = BigDecimal.ZERO
     val invoiceDetails = mutableListOf<InvoiceDetail>()
-    for (i in 1..totalDays) {
 
-      val milkPerDay = mapConfig.get(tempStartDay)
-      val pricePerDay = price.multiply(BigDecimal.valueOf(milkPerDay!!))
-      totalPrice += pricePerDay
+    for (date in 1..totalDays) {
 
-      invoiceDetails.add(InvoiceDetail(date = i, dayInWord = WeekDays.new(tempStartDay).name, milkPerDay = milkPerDay.toInt(), totalCostPerDay = pricePerDay))
+      val milkPerDay = mapConfig.getOrDefault(tempStartDay, 0L)
+
+      val pricePerDay = if (milkNotTaken.contains(date)) BigDecimal.ZERO
+      else price.multiply(BigDecimal.valueOf(milkPerDay))
+
+      invoiceDetails.add(InvoiceDetail(date = date, dayInWord = WeekDays.new(tempStartDay).name, milkPerDay = milkPerDay.toInt(), totalCostPerDay = pricePerDay))
 
       tempStartDay = if ((tempStartDay + 1) > 6) 0 else tempStartDay + 1
+      totalPrice += pricePerDay
     }
     return Flux.fromIterable(invoiceDetails)
   }

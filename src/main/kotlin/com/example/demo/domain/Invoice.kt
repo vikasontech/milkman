@@ -10,4 +10,5 @@ data class Invoice(val name: String,
                    val billingDate: LocalDate,
                    val totalAmount: BigDecimal,
                    val pricePerLtr: BigDecimal,
+                   val extraMilkPerLtr: Int,
                    val descriptions: List<InvoiceDetail>)

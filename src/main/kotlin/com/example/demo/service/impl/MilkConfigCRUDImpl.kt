@@ -11,8 +11,8 @@ import reactor.core.publisher.toMono
 @Service
 class MilkConfigCRUDImpl(val repo: UserConfigRepo) : MilkConfigCRUD {
 
-  override fun saveUserConfig(userDetails: Publisher<UserConfig>): Mono<UserConfig> {
-    return userDetails
+  override fun saveUserConfig(userDetail: Publisher<UserConfig>): Mono<UserConfig> {
+    return userDetail
         .toMono()
         .map { e -> e.copy(id = Utils.getID()) }
         .flatMap { e -> saveUserDetails(e) }

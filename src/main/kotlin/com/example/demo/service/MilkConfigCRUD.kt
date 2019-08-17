@@ -5,7 +5,7 @@ import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 
 interface MilkConfigCRUD {
-  fun saveUserConfig(userDetails: Publisher<UserConfig>): Mono<UserConfig>
+  fun saveUserConfig(userDetail: Publisher<UserConfig>): Mono<UserConfig>
   fun queryUserConfigData(userId: String): Mono<UserConfig>
-  fun update(userDetails: Publisher<UserConfig>): Mono<UserConfig>
+  fun update(userDetail: Publisher<UserConfig>): Mono<UserConfig>
 }
