@@ -9,4 +9,3 @@ class MilkmanApplication
 fun main(args: Array<String>) {
   runApplication<MilkmanApplication>(*args)
 }
-
