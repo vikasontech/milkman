@@ -5,7 +5,6 @@ import com.example.demo.documents.UserConfig
 import com.example.demo.documents.UserConfigRepo
 import org.junit.Test
 
-import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
@@ -17,13 +16,13 @@ import reactor.test.StepVerifier
 import java.math.BigDecimal
 
 @RunWith(MockitoJUnitRunner::class)
-class MilkConfigCRUDImplTest {
+class UserConfigServiceImplTest {
 
   @Mock
   lateinit var repo: UserConfigRepo
 
   @InjectMocks
-  lateinit var milkConfigCRUD: MilkConfigCRUDImpl
+  lateinit var milkConfigCRUD: UserConfigServiceImpl
 
   @Test
   fun saveUserConfig() {

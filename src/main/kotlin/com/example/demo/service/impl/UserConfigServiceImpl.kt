@@ -2,14 +2,14 @@ package com.example.demo.service.impl
 
 import com.example.demo.documents.UserConfig
 import com.example.demo.documents.UserConfigRepo
-import com.example.demo.service.MilkConfigCRUD
+import com.example.demo.service.UserConfigService
 import org.reactivestreams.Publisher
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
 @Service
-class MilkConfigCRUDImpl(val repo: UserConfigRepo) : MilkConfigCRUD {
+class UserConfigServiceImpl(val repo: UserConfigRepo) : UserConfigService {
 
   override fun saveUserConfig(userDetail: Publisher<UserConfig>): Mono<UserConfig> {
     return userDetail

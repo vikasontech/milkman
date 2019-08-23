@@ -16,6 +16,10 @@ data class UserConfig(
     val milkConfigs: List<MilkConfig>
 )
 
+@Document
+data class SampleRequest (
+    val name:String
+)
 @Repository
 interface UserConfigRepo : ReactiveCrudRepository<UserConfig, String> {
   fun findByUserId(userId: String): Mono<UserConfig>
