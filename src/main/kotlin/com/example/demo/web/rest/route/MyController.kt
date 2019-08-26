@@ -3,14 +3,13 @@ package com.example.demo.web.rest.route
 import com.example.demo.documents.SampleRequest
 import com.example.demo.documents.UserConfig
 import com.example.demo.service.UserConfigService
-import org.reactivestreams.Publisher
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
+import org.springframework.web.reactive.function.BodyInserter
+import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.server.HandlerFunction
-import org.springframework.web.reactive.function.server.RequestPredicate
-import org.springframework.web.reactive.function.server.RequestPredicates
 import org.springframework.web.reactive.function.server.RequestPredicates.GET
 import org.springframework.web.reactive.function.server.RequestPredicates.POST
 import org.springframework.web.reactive.function.server.RequestPredicates.contentType
@@ -20,19 +19,13 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.bodyToServerSentEvents
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
-import javax.print.attribute.standard.Media
 
-@Component
+@Controller
 class MyControllerHandlerFun(val userConfigService: UserConfigService) {
-//  fun createUserConfigData(userConfig: Publisher<UserConfig>): Mono<UserConfig> {
-//    return userConfigService.saveUserConfig(userConfig.toMono())
-//  }
 
   fun createUserConfig(serverRequest: ServerRequest): Mono<ServerResponse> {
     val userConfig: Mono<UserConfig> = serverRequest.bodyToMono(UserConfig::class.java)
-    userConfig.subscribe { println(it) }
-    return ServerResponse.ok().build();
+    return ServerResponse.ok().bodyToServerSentEvents(userConfigService.saveUserConfig(userConfig))
   }
 
   fun testConfig(serverRequest: ServerRequest): Mono<ServerResponse> {
