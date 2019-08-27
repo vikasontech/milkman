@@ -43,7 +43,7 @@ class MyControllerRoutingFun(val myControllerHandlerFun: MyControllerHandlerFun)
         // create new user
         .andRoute(POST("/api/user-config")
             .and(contentType(MediaType.APPLICATION_JSON)),
-            HandlerFunction { it -> myControllerHandlerFun.createUserConfig(it)})
+            HandlerFunction { myControllerHandlerFun.createUserConfig(it)})
         .andRoute(POST("/api/test")
             .and(contentType(MediaType.APPLICATION_JSON)),
             HandlerFunction { myControllerHandlerFun.testConfig(it)})
