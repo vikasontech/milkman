@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono
 @Controller
 class UserConfigControllerRoute(val handler: UserConfigControllerHandler) {
   @Bean
-  fun routing(): RouterFunction<ServerResponse> {
+  fun userConfigControllerRouting(): RouterFunction<ServerResponse> {
     return route(POST("/api/user-config")
             .and(contentType(MediaType.APPLICATION_JSON)),
             HandlerFunction { handler.createUserConfig(it)})

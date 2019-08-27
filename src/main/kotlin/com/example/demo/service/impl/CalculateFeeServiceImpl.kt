@@ -17,11 +17,16 @@ import java.util.stream.Collectors
 @Service
 class CalculateFeeServiceImpl : CalculateFeeService {
 
-  override fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>): Mono<Invoice> {
-    val extraMilk = 3L
+  override fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>,
+                                     year: Int,
+                                     month: Int,
+                                     day: Int ,
+                                     milkNotTaken: List<Int>,
+                                     extraMilk: Int
+                                     ): Mono<Invoice> {
     val invoiceDetails = userConfig.toMono().zipWith(getMilkConfigDetails(userConfig)) { a, b ->
-      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = 2019,
-          month = 7, milkNotTaken = emptyList(), day = 0)
+      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = year,
+          month = month, milkNotTaken = milkNotTaken, day = day)
     }
 
     // per month
@@ -33,7 +38,7 @@ class CalculateFeeServiceImpl : CalculateFeeService {
       Invoice(name = tuple.t1.userId, pricePerLtr = tuple.t1.pricePerLtr,
           year = 2019, month = 7, billingDate = LocalDate.now(), descriptions = tuple.t3,
           vendorName = tuple.t1.vendorName, extraMilkPerLtr = extraMilk.toInt(),
-          totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(extraMilk)))))
+          totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(extraMilk.toLong())))))
     }
   }
 

@@ -47,7 +47,9 @@ class CalculateFeeServiceImplTest {
 
   @Test
   fun calculateMonthlyPriceTest() {
-    val calculateMonthlyPriceMono = calculateFeeService.calculateMonthlyPrice(Mono.justOrEmpty(getMockUserConfigData()))
+    val calculateMonthlyPriceMono = calculateFeeService.calculateMonthlyPrice(day = 0,
+        month = 7, extraMilk = 3, milkNotTaken = emptyList(), userConfig = Mono.justOrEmpty(getMockUserConfigData()),
+        year = 2019)
     calculateMonthlyPriceMono.subscribe { e ->
       Assert.isTrue(e.totalAmount == BigDecimal.valueOf(1221), "Total amount should be 1221")
     }

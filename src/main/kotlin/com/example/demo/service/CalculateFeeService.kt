@@ -6,5 +6,5 @@ import org.reactivestreams.Publisher
 import reactor.core.publisher.Mono
 
 interface CalculateFeeService {
-  fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>): Mono<Invoice>
+  fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>, year: Int, month: Int, day: Int, milkNotTaken: List<Int>, extraMilk: Int): Mono<Invoice>
 }
