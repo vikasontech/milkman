@@ -1,6 +1,7 @@
 package com.example.demo.service.impl
 
 import com.example.demo.documents.UserConfig
+import com.example.demo.domain.CalculateMonthlyInvoiceRequest
 import com.example.demo.domain.Invoice
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -26,11 +27,11 @@ class CalculateFeeServiceImplTest {
   lateinit var calculateFeeService: CalculateFeeServiceImpl
 
   @Test
-  fun testcalculateMonthlyPrice_v2() {
+  fun testCalculateMonthlyPrice_v2() {
 
   }
 
-  fun calculateMonthlyPrice_v2(userConfig: Publisher<UserConfig>, extraMilk: Int, year: Int, month: Int, day: Int): Mono<Invoice> {
+  fun calculateMonthlyPrice_v2(userConfig: UserConfig, extraMilk: Int, year: Int, month: Int, day: Int): Mono<Invoice> {
     val invoiceDetails = userConfig.toMono().zipWith(calculateFeeService.getMilkConfigDetails(userConfig)) { a, b ->
       calculateFeeService.calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = year, month = month, milkNotTaken = emptyList(), day = 0)
     }
@@ -47,9 +48,11 @@ class CalculateFeeServiceImplTest {
 
   @Test
   fun calculateMonthlyPriceTest() {
-    val calculateMonthlyPriceMono = calculateFeeService.calculateMonthlyPrice(day = 0,
-        month = 7, extraMilk = 3, milkNotTaken = emptyList(), userConfig = Mono.justOrEmpty(getMockUserConfigData()),
-        year = 2019)
+    val request = CalculateMonthlyInvoiceRequest(day = 0, month = 7, extraMilk = 3, datesMilkNotTaken = emptyList(),
+        year = 2019, userId = "")
+    val calculateMonthlyPriceMono = calculateFeeService.calculateMonthlyPrice(userConfig = getMockUserConfigData(),
+        calculateMonthlyInvoiceRequest = request )
+
     calculateMonthlyPriceMono.subscribe { e ->
       Assert.isTrue(e.totalAmount == BigDecimal.valueOf(1221), "Total amount should be 1221")
     }
@@ -60,7 +63,7 @@ class CalculateFeeServiceImplTest {
 
     val userConfig = getMockUserConfigData()
 
-    val map = calculateFeeService.getMilkConfigDetails(Mono.just(userConfig))
+    val map = calculateFeeService.getMilkConfigDetails(userConfig)
     val mutableMapOf = mutableMapOf<Int, Long>()
     mutableMapOf[0] = 0
     mutableMapOf[1] = 0

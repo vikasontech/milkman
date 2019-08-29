@@ -4,19 +4,23 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.BodyInserters.fromObject
-import org.springframework.web.reactive.function.server.HandlerFunction
 import org.springframework.web.reactive.function.server.RequestPredicates.GET
+import org.springframework.web.reactive.function.server.RequestPredicates.POST
 import org.springframework.web.reactive.function.server.RequestPredicates.contentType
+import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions
 import org.springframework.web.reactive.function.server.RouterFunctions.route
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
+import org.springframework.web.reactive.function.server.HandlerFunction as HandlerFunction
 
 @Controller
-class CalculateBalanceControllerRoute {
+class CalculateBalanceControllerRoute(val calculateBalanceControllerHandler:CalculateBalanceControllerHandler) {
   @Bean
-  fun calculating() {
-    route(GET("/api/calculate").and(contentType(MediaType.APPLICATION_JSON)),
-        HandlerFunction { ServerResponse.ok().body(fromObject("this is response")) })
+  fun calculating(): RouterFunction<ServerResponse> {
+    return route(POST("/api/calculate")
+        .and(contentType(MediaType.APPLICATION_JSON)),
+        HandlerFunction{ calculateBalanceControllerHandler.calculate(it) })
   }
+
 }

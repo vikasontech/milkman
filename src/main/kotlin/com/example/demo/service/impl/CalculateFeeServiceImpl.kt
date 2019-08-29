@@ -1,6 +1,7 @@
 package com.example.demo.service.impl
 
 import com.example.demo.documents.UserConfig
+import com.example.demo.domain.CalculateMonthlyInvoiceRequest
 import com.example.demo.domain.Invoice
 import com.example.demo.domain.InvoiceDetail
 import com.example.demo.service.CalculateFeeService
@@ -17,16 +18,13 @@ import java.util.stream.Collectors
 @Service
 class CalculateFeeServiceImpl : CalculateFeeService {
 
-  override fun calculateMonthlyPrice(userConfig: Publisher<UserConfig>,
-                                     year: Int,
-                                     month: Int,
-                                     day: Int ,
-                                     milkNotTaken: List<Int>,
-                                     extraMilk: Int
-                                     ): Mono<Invoice> {
+  override fun calculateMonthlyPrice(userConfig: UserConfig,
+                                     calculateMonthlyInvoiceRequest: CalculateMonthlyInvoiceRequest
+  ): Mono<Invoice> {
     val invoiceDetails = userConfig.toMono().zipWith(getMilkConfigDetails(userConfig)) { a, b ->
-      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = year,
-          month = month, milkNotTaken = milkNotTaken, day = day)
+      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = calculateMonthlyInvoiceRequest.year,
+          month = calculateMonthlyInvoiceRequest.month, milkNotTaken = calculateMonthlyInvoiceRequest.datesMilkNotTaken,
+          day = calculateMonthlyInvoiceRequest.day)
     }
 
     // per month
@@ -37,8 +35,8 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     return Mono.zip(userConfig.toMono(), totalCost, invoiceDetailsFlux).map { tuple ->
       Invoice(name = tuple.t1.userId, pricePerLtr = tuple.t1.pricePerLtr,
           year = 2019, month = 7, billingDate = LocalDate.now(), descriptions = tuple.t3,
-          vendorName = tuple.t1.vendorName, extraMilkPerLtr = extraMilk.toInt(),
-          totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(extraMilk.toLong())))))
+          vendorName = tuple.t1.vendorName, extraMilkPerLtr = calculateMonthlyInvoiceRequest.extraMilk.toInt(),
+          totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(calculateMonthlyInvoiceRequest.extraMilk.toLong())))))
     }
   }
 
@@ -48,15 +46,15 @@ class CalculateFeeServiceImpl : CalculateFeeService {
 
   fun calculateInvoiceDetails(mapConfig: Map<Int, Long>, milkNotTaken: List<Int>,
                               price: BigDecimal, year: Int, month: Int,
-                              day:Int):
+                              day: Int):
       Flux<InvoiceDetail> {
 
-    require(month in 1..12) {"Invalid Month $month!"}
-    require(year in 2000 .. 2999) {"Invalid Year: $year!"}
+    require(month in 1..12) { "Invalid Month $month!" }
+    require(year in 2000..2999) { "Invalid Year: $year!" }
     val localDate = LocalDate.of(year, month, 1)
-    require(day in 0 .. localDate.lengthOfMonth()) {"Invalid Day $day!"}
+    require(day in 0..localDate.lengthOfMonth()) { "Invalid Day $day!" }
 
-    val totalDays = if(day == 0 ) localDate.lengthOfMonth() else day
+    val totalDays = if (day == 0) localDate.lengthOfMonth() else day
 
     var tempStartDay = localDate.dayOfWeek.value
 
@@ -78,7 +76,7 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     return Flux.fromIterable(invoiceDetails)
   }
 
-  fun getMilkConfigDetails(userConfig: Publisher<UserConfig>): Mono<Map<Int, Long>> {
+  fun getMilkConfigDetails(userConfig: UserConfig): Mono<Map<Int, Long>> {
     val map = mutableMapOf<Int, Long>()
     userConfig.toMono().map { e -> e.milkConfigs }.map { e -> e.forEach { x -> map[x.day] = x.quantity.toLong() } }.block()
     return Mono.justOrEmpty(map.toMap())
