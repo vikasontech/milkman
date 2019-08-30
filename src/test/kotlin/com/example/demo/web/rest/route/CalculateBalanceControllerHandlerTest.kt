@@ -1,16 +1,14 @@
 package com.example.demo.web.rest.route
 
-import com.example.demo.KotlinMockUtils.any
 import com.example.demo.domain.CalculateMonthlyInvoiceRequest
 import com.example.demo.domain.Invoice
-import com.example.demo.facade.CalculateFeeFacade
+import com.example.demo.facade.impl.CalculateFeeFacadeImpl
 import org.junit.Assert
 
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.mock.web.reactive.function.server.MockServerRequest
 import org.springframework.web.reactive.function.BodyInserters
@@ -19,12 +17,11 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.coroutines.experimental.buildIterator
 
 @RunWith(MockitoJUnitRunner::class)
 class CalculateBalanceControllerHandlerTest{
   @Mock
-  lateinit var calculateFeeFacade: CalculateFeeFacade
+  lateinit var calculateFeeFacade: CalculateFeeFacadeImpl
   @InjectMocks
   lateinit var calculateBalanceControllerHandler:CalculateBalanceControllerHandler
 

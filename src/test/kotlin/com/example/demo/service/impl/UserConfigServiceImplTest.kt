@@ -74,4 +74,13 @@ class UserConfigServiceImplTest {
         .expectNext(userConfig)
         .verifyComplete()
   }
+
+  @Test
+  fun queryUserConfig_nodatafound() {
+    val userId = "user-id"
+    Mockito.`when`(repo.findByUserId(userId)).thenReturn(Mono.empty());
+    StepVerifier.create(
+        milkConfigCRUD.queryUserConfigData(userId).log("result: "))
+        .verifyComplete()
+  }
 }

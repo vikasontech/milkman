@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.reactive.function.BodyInserters.fromObject
 import org.springframework.web.reactive.function.server.RequestPredicates.GET
 import org.springframework.web.reactive.function.server.RequestPredicates.POST
+import org.springframework.web.reactive.function.server.RequestPredicates.accept
 import org.springframework.web.reactive.function.server.RequestPredicates.contentType
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions
@@ -19,7 +20,8 @@ class CalculateBalanceControllerRoute(val calculateBalanceControllerHandler:Calc
   @Bean
   fun calculating(): RouterFunction<ServerResponse> {
     return route(POST("/api/calculate")
-        .and(contentType(MediaType.APPLICATION_JSON)),
+        .and(contentType(MediaType.APPLICATION_JSON))
+        .and(accept(MediaType.APPLICATION_JSON)),
         HandlerFunction{ calculateBalanceControllerHandler.calculate(it) })
   }
 

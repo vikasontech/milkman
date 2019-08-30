@@ -1,32 +1,26 @@
 package com.example.demo.web.rest.route
 
-import com.example.demo.KotlinMockUtils
 import com.example.demo.KotlinMockUtils.any
 import com.example.demo.domain.CalculateMonthlyInvoiceRequest
 import com.example.demo.domain.Invoice
 import com.example.demo.facade.CalculateFeeFacade
+import com.example.demo.facade.impl.CalculateFeeFacadeImpl
 import com.example.demo.service.UserConfigService
 import com.example.demo.service.impl.Utils
-import org.junit.Assert
 import org.junit.Test
 
-import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.MockBeans
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserter
 import org.springframework.web.reactive.function.BodyInserters
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.LocalDate
-import kotlin.math.exp
 
 @RunWith(SpringRunner::class)
 @WebFluxTest
@@ -39,7 +33,7 @@ class CalculateBalanceControllerRouteTest {
   lateinit var userConfigService: UserConfigService
 
   @MockBean
-  lateinit var calculateFeeFacade: CalculateFeeFacade
+  lateinit var calculateFeeFacade: CalculateFeeFacadeImpl
 
   @Test
   fun print_json() {
@@ -51,6 +45,7 @@ class CalculateBalanceControllerRouteTest {
         extraMilk = 3,
         month = 8)))
   }
+
   @Test
   fun calculating() {
 
@@ -69,20 +64,14 @@ class CalculateBalanceControllerRouteTest {
     Mockito.`when`(calculateFeeFacade.calculateMonthlyPrice(any()))
         .thenReturn(Mono.just(expectedResult))
 
-    println(Utils.objectMapper()!!.writeValueAsString(expectedResult))
-//
-//    webTestClient.post()
-//        .uri("/api/calculate")
-//        .contentType(MediaType.APPLICATION_JSON)
-//        .body(BodyInserters.fromObject(request))
-//        .accept(MediaType.APPLICATION_JSON)
-//        .exchange()
-//         .expectStatus().isOk
-//        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-//        .expectBody()
-////        .consumeWith { assertNotNull(it.responseBody) }
-//        .json(Utils.objectMapper()!!.writeValueAsString(expectedResult))
-////        .jsonPath("$.name").isEqualTo("vikas")
-//  }
+    webTestClient.post()
+        .uri("/api/calculate")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(request))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(Utils.objectMapper()!!.writeValueAsString(expectedResult))
   }
 }
