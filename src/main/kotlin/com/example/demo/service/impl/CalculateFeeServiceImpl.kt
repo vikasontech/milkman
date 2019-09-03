@@ -21,7 +21,8 @@ class CalculateFeeServiceImpl : CalculateFeeService {
   override fun calculateMonthlyPrice(userConfig: UserConfig,
                                      calculateMonthlyInvoiceRequest: CalculateMonthlyInvoiceRequest
   ): Mono<Invoice> {
-    val invoiceDetails = userConfig.toMono().zipWith(getMilkConfigDetails(userConfig)) { a, b ->
+    val invoiceDetails = userConfig.toMono()
+        .zipWith(getMilkConfigDetails(userConfig)) { a, b ->
       calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = calculateMonthlyInvoiceRequest.year,
           month = calculateMonthlyInvoiceRequest.month, milkNotTaken = calculateMonthlyInvoiceRequest.datesMilkNotTaken,
           day = calculateMonthlyInvoiceRequest.day)
