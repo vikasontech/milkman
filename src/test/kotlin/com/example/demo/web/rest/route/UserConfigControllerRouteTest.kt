@@ -52,12 +52,15 @@ class UserConfigControllerRouteTest {
     webTestClient.post()
         .uri("/api/user-config")
         .contentType(MediaType.APPLICATION_JSON_UTF8)
-        .accept(MediaType.APPLICATION_JSON_UTF8)
+//        .accept(MediaType.APPLICATION_JSON_UTF8)
         .body(Mono.just(userConfig), UserConfig::class.java)
         .exchange()
+        .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.id").isNotEmpty
         .jsonPath("$.id").isEqualTo("some value")
+        .json("{\"id\":\"some value\",\"userId\":\"\"," +
+            "\"vendorName\":\"vikas\",\"pricePerLtr\":1,\"milkConfigs\":[{\"userId\":\"\",\"day\":1,\"quantity\":1}]}")
+        .consumeWith{ println(it)}
   }
 }
