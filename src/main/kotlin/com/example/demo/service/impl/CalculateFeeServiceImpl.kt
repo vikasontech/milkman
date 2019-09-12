@@ -23,10 +23,10 @@ class CalculateFeeServiceImpl : CalculateFeeService {
   ): Mono<Invoice> {
     val invoiceDetails = userConfig.toMono()
         .zipWith(getMilkConfigDetails(userConfig)) { a, b ->
-      calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = calculateMonthlyInvoiceRequest.year,
-          month = calculateMonthlyInvoiceRequest.month, milkNotTaken = calculateMonthlyInvoiceRequest.datesMilkNotTaken,
-          day = calculateMonthlyInvoiceRequest.day)
-    }
+          calculateInvoiceDetails(mapConfig = b, price = a.pricePerLtr, year = calculateMonthlyInvoiceRequest.year,
+              month = calculateMonthlyInvoiceRequest.month, milkNotTaken = calculateMonthlyInvoiceRequest.datesMilkNotTaken,
+              day = calculateMonthlyInvoiceRequest.day)
+        }
 
     // per month
     val totalCost = invoiceDetails.flatMap { e -> getTotalCost(e) }
@@ -34,9 +34,14 @@ class CalculateFeeServiceImpl : CalculateFeeService {
     val invoiceDetailsFlux = invoiceDetails.flatMap { e -> e.collect(Collectors.toList()) }
 
     return Mono.zip(userConfig.toMono(), totalCost, invoiceDetailsFlux).map { tuple ->
-      Invoice(name = tuple.t1.userId, pricePerLtr = tuple.t1.pricePerLtr,
-          year = 2019, month = 7, billingDate = LocalDate.now(), descriptions = tuple.t3,
-          vendorName = tuple.t1.vendorName, extraMilkPerLtr = calculateMonthlyInvoiceRequest.extraMilk.toInt(),
+      Invoice(name = tuple.t1.userId,
+          pricePerLtr = tuple.t1.pricePerLtr,
+          year = calculateMonthlyInvoiceRequest.year,
+          month = calculateMonthlyInvoiceRequest.month,
+          billingDate = LocalDate.now(),
+          descriptions = tuple.t3,
+          vendorName = tuple.t1.vendorName,
+          extraMilkPerLtr = calculateMonthlyInvoiceRequest.extraMilk.toInt(),
           totalAmount = tuple.t2.add((tuple.t1.pricePerLtr.multiply(BigDecimal.valueOf(calculateMonthlyInvoiceRequest.extraMilk.toLong())))))
     }
   }

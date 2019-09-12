@@ -41,8 +41,6 @@ class CalculateFeeFacadeImplTest{
     val resultMono = calculateFeeFacade
         .calculateMonthlyPrice(calculateMonthlyInvoiceRequest)
 
-    resultMono.subscribe{println("Result details: $it")}
-
     StepVerifier.create(resultMono.log("result: "))
         .expectSubscription()
         .verifyComplete()
